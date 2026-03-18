@@ -656,6 +656,7 @@ const SmartRoute360 = () => {
   const backgroundMarkersRef = useRef([]);
   const markersRef = useRef([]);
   const polylinesRef = useRef([]);
+  const clickTimeoutRef = useRef(null);
 
   // Load graph data - FIXED VERSION
   useEffect(() => {
@@ -687,7 +688,8 @@ const SmartRoute360 = () => {
       center: [23.0225, 72.5714],
       zoom: 13,
       zoomControl: true,
-      scrollWheelZoom: true
+      scrollWheelZoom: true,
+      doubleClickZoom: false
     });
     
     const tileUrls = {
@@ -705,11 +707,19 @@ const SmartRoute360 = () => {
     tileLayer.addTo(map);
     mapRef.current = map;
     
-    // Enhanced click handler with node display
+    const clearPendingStartSelection = () => {
+      if (clickTimeoutRef.current) {
+        window.clearTimeout(clickTimeoutRef.current);
+        clickTimeoutRef.current = null;
+      }
+    };
+
+    // Single click selects start. Double click selects end.
     map.on('click', (e) => {
       const { lat, lng } = e.latlng;
       
       if (e.originalEvent.ctrlKey) {
+        clearPendingStartSelection();
         // Ctrl+Click to block/unblock nodes
         const nearestNode = findNearestNode(lat, lng, graphRef.current);
         if (nearestNode) {
@@ -721,14 +731,24 @@ const SmartRoute360 = () => {
             }
           });
         }
-      } else if (e.originalEvent.shiftKey) {
-        setEndNode({ lat, lng });
       } else {
-        setStartNode({ lat, lng });
+        clearPendingStartSelection();
+        clickTimeoutRef.current = window.setTimeout(() => {
+          setStartNode({ lat, lng });
+          clickTimeoutRef.current = null;
+        }, 220);
       }
     });
-    
+
+    map.on('dblclick', (e) => {
+      const { lat, lng } = e.latlng;
+      clearPendingStartSelection();
+      setEndNode({ lat, lng });
+    });
+
     return () => {
+      clearPendingStartSelection();
+      
       backgroundMarkersRef.current.forEach((marker) => marker.remove());
       backgroundMarkersRef.current = [];
       markersRef.current.forEach((marker) => marker.remove());
@@ -755,7 +775,7 @@ const SmartRoute360 = () => {
       }
     };
   }, []);
-  
+
   // Update map style
   useEffect(() => {
     if (!mapRef.current) return;
@@ -1614,8 +1634,8 @@ const SmartRoute360 = () => {
               <div className="rounded-2xl border border-slate-700/70 bg-slate-800/55 p-4 text-xs text-slate-300">
                 <p className="mb-2 font-semibold text-slate-100">Map Interaction</p>
                 <div className="space-y-1">
-                  <p>Click: set start point</p>
-                  <p>Shift + Click: set destination</p>
+                  <p>Single Click: set start point</p>
+                  <p>Double Click: set destination</p>
                   <p>Ctrl + Click: block/unblock node</p>
                   <p>Scroll: zoom, Drag: pan</p>
                 </div>
@@ -1629,11 +1649,11 @@ const SmartRoute360 = () => {
                 <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
                   <span className="inline-flex items-center gap-2 rounded-full border border-slate-600 bg-slate-800/80 px-3 py-1 text-slate-200">
                     <span className="h-2.5 w-2.5 rounded-full bg-green-400" />
-                    Start
+                    Start (Single Click)
                   </span>
                   <span className="inline-flex items-center gap-2 rounded-full border border-slate-600 bg-slate-800/80 px-3 py-1 text-slate-200">
                     <span className="h-2.5 w-2.5 rounded-full bg-red-400" />
-                    End
+                    End (Double Click)
                   </span>
                   <span className="inline-flex items-center gap-2 rounded-full border border-slate-600 bg-slate-800/80 px-3 py-1 text-slate-200">
                     <span className="h-2.5 w-2.5 rounded-full bg-blue-400" />

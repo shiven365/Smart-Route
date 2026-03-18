@@ -1,16 +1,126 @@
-# React + Vite
+# Smart Route 360
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Smart Route 360 is an interactive pathfinding visualizer built with React, Vite, and Leaflet.
+It loads a real road graph and compares multiple graph search algorithms with live map exploration, route drawing, and vehicle animation.
 
-Currently, two official plugins are available:
+## Highlights
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Interactive map-based route selection
+- Multiple algorithm support:
+	- A*
+	- Dijkstra
+	- Bidirectional Dijkstra
+	- BFS (Breadth-First Search)
+	- Greedy Best-First Search
+	- DFS (Depth-First Search)
+- Live explored-node and final-route rendering
+- Adjustable simulation settings:
+	- Heuristic weight
+	- Traffic weight
+	- Vehicle speed
+- Block/unblock nodes on the graph for obstacle simulation
+- Realistic vehicle movement along the computed route
+- Metrics panel with time, explored nodes, route size, and distance
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React 19
+- Vite 7
+- Leaflet
+- Recharts
+- Lucide React
+- Tailwind CSS 4
 
-## Expanding the ESLint configuration
+## Controls
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- Single click: set Start point
+- Double click: set End point
+- Ctrl + click: block or unblock nearest node
+- Scroll: zoom map
+- Drag: pan map
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18+ (recommended: latest LTS)
+- npm
+
+### Installation
+
+```bash
+npm install
+```
+
+### Run Development Server
+
+```bash
+npm run dev
+```
+
+Open the local URL shown in terminal (usually http://localhost:5173).
+
+### Build for Production
+
+```bash
+npm run build
+```
+
+### Preview Production Build
+
+```bash
+npm run preview
+```
+
+### Lint
+
+```bash
+npm run lint
+```
+
+## Data Pipeline
+
+The route graph is loaded from:
+
+- `src/graph.json`
+
+If you need to regenerate graph data from GeoJSON, use the conversion script in:
+
+- `scripts/convertGeoJSON.js`
+
+Input example:
+
+- `scripts/export.geojson`
+
+## Project Structure
+
+```text
+.
+|- public/
+|- scripts/
+|  |- convertGeoJSON.js
+|  |- export.geojson
+|- src/
+|  |- App.jsx
+|  |- copy1.jsx
+|  |- graph.json
+|  |- index.css
+|  |- main.jsx
+|  |- assets/
+|- index.html
+|- package.json
+|- vite.config.js
+```
+
+## Notes
+
+- The graph can be large, so production builds may show chunk-size warnings.
+- Rendering is optimized by sampling background nodes while keeping route accuracy.
+
+## Repository
+
+GitHub: https://github.com/shiven365/Smart-Route
+
+## License
+
+This project is for educational and academic use.
